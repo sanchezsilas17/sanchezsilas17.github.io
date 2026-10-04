@@ -159,6 +159,7 @@
       <div class="sub" id="clock"></div>
     <div class="sub" id="planLine"></div>
     </div>
+    <button class="icon-btn" id="langBtn">ES</button>
     <button class="icon-btn" id="addPatientBtn">+ Patient</button>
   </header>
 
@@ -183,6 +184,39 @@
 const KEY = "cna-daily-log-v1";
 const LICENSE_HASHES = {"653450f5b984b5a829604d7813245d34502af2aaf22d30949c7e3de350650046":"year","3cf68b686a41c738810809db299274f25d4cd8361d6f0d909ff0ae106be9af83":"year","b95a621453ba1eea5a6031090864f124de9a10d20a40605a0f79ecba7f4eeb8b":"year","ad39702f310b6470ff8cec9435353c1422c11d333cf2728771a3c6f94be66654":"year","656808789ddbbe35399ac2e222cd58b73eae4eb6d27d934519c2d1e3cbbac0e5":"year","3a883dce9a64e7277112edad4a46ece1854b2dcf7f44332961d799baf354c6ee":"year","6ae5792de4c67f588dad2f84448fafcbd31ecf3d1bc7bfc0cf25a30211c8ec1d":"year","77c34dc39f51d4945b6974d15ea010dff978da6c7b728fecd5283b90c9b10852":"year","80f784c4c5b21ec00f554264f80fc3645eced908cb92b14db1aaaa621fd9fb10":"year","1ed24b3b780e5d23b938063372e4b569ce3e00cccce56148595fa5008eaf912c":"year","15306c32f7799b780fb049094d07d6b414ac42fe6b4527711e3bbac8322443f5":"year","021f37bb5194d50b922721a691ddbea5f5e5d830747c8cc679e118dc615c6477":"year","70c73e8b69bd2b2a042b948a99bfaf5ef1df9f4ff5e9513c9eaa04514d6d2e46":"year","3e788ebbd7f2f83a7edfa5aef78cfb26f47007ca3274c0eb2ed9b5d92664888c":"year","2a77438a7c02dbe74b5a4cb44db373bb5ec21a438b2fc60cd601548627491610":"year","4c4e77fd6bc25152b4b381a32659c1c76bd21b1f6f42de0ca86480a07bfb556a":"month","72b65e5882f4a5d6500ab1d4065971426f7f73b380960e7ff77c09db6bece04b":"month","8f7b01629d253103dfe9c830f15bf87eb196d910ac47aabdfbb35913f60ffe70":"month","7748c7a5dbedc0e3b67be905fa7f71e4ecb3e491edeb1f7d3a20e974b850cb11":"month","a2e36766293a2e282b9731ec35c6f29cd8e64662752d9423ec8ee55c2d82b0c8":"month","f6062ca11143b9f872a88f0a617564597ad7a772adc6ebd73ef098d4f06143e0":"month","e156a48baba561db92ab83a10dc177ac3a8b8aeac2ed3bc3971edf353459f67c":"month","2e4e2827060e3141c797894592f782849c3f9dd95230609718f0a29e24d6a30f":"month","36e00e66ca9095c12adf4859675be00c79ea35bde960c8af2c37a26f567e84ae":"month","d4f90dba2402a2da0282f1aa88e0dc6305591269306297541d84aa55fdf8e5da":"month","a95a26c7741988295e61d77f0b5d03d8903ac503b57b64e18bba2377d480e6fe":"owner"};
 const TRIAL_DAYS = 14;
+const I18N = {
+  en: {
+    charting: "Shift charting", addPatient: "+ Patient", log: "Log", timeline: "Timeline", report: "Report", more: "More",
+    install: "Open this page in Safari, tap Share, then Add to Home Screen. A file from Files cannot be added.",
+    vitals: "Vitals", vitalsSub: "BP and all", meds: "Meds", medsSub: "Given / held", intake: "Intake", intakeSub: "Meal + mL",
+    urine: "Urine", urineSub: "Void / Foley", stool: "Stool", stoolSub: "BM log", move: "Movement", moveSub: "Turns / walk",
+    note: "+ Shift note", bp: "Blood pressure", pulse: "Pulse", temp: "Temp", resp: "Respirations", oxygen: "Oxygen", pain: "Pain", glucose: "Blood glucose",
+    tap: "Tap a box to chart", today: "Today", latest: "Latest", deleteHint: "tap an entry to delete",
+    dietMissing: "Diet not set", noRoom: "No room", allergies: "Allergies", reportNurse: "report to nurse", critical: "BP in critical range — notify nurse now",
+    trialEnded: "Trial ended", ready: "Daily Log is ready for your shift", payblurb: "$49 a year or $6.99 a month. Pay Erica, then enter the code she texts you. The code expires in 5 minutes. Charts stay on this phone.",
+    seePrice: "See price and pay", haveCode: "I have a code", empty: "Add a patient to start a shift log.", nothing: "Nothing logged today. Use the buttons above.",
+    patients: "Patients", backup: "Backup", export: "Export backup", import: "Import", erase: "Erase all data on this device", plan: "Plan", enterCode: "Enter unlock code", pricePage: "Nurse price page", privacy: "Privacy and disclaimer",
+    newPatient: "New patient", editPatient: "Edit patient", name: "Name", room: "Room / bed", dob: "Date of birth", diet: "Diet / fluid orders", codeStatus: "Code status", precautions: "Precautions", careNotes: "Care notes", save: "Save", cancel: "Cancel",
+    photo: "Take picture of vitals", photoHelp: "Take the picture. It reads the numbers and saves them in the right boxes.",
+    unlock: "Unlock code", codeExpires: "The code expires in 5 minutes.", codeFrom: "Code from Erica", badCode: "That code is not valid.", paid: "Paid plan", trialLeft: "days left in trial"
+  },
+  es: {
+    charting: "Registro del turno", addPatient: "+ Paciente", log: "Registro", timeline: "Historial", report: "Reporte", more: "Más",
+    install: "Abra esta página en Safari, toque Compartir y luego Agregar a pantalla de inicio. Un archivo de Archivos no se puede agregar.",
+    vitals: "Signos vitales", vitalsSub: "PA y todo", meds: "Medicamentos", medsSub: "Dado / retenido", intake: "Ingesta", intakeSub: "Comida + mL",
+    urine: "Orina", urineSub: "Micción / sonda", stool: "Heces", stoolSub: "Evacuación", move: "Movimiento", moveSub: "Cambios / marcha",
+    note: "+ Nota del turno", bp: "Presión arterial", pulse: "Pulso", temp: "Temperatura", resp: "Respiraciones", oxygen: "Oxígeno", pain: "Dolor", glucose: "Glucosa",
+    tap: "Toque una casilla para anotar", today: "Hoy", latest: "Reciente", deleteHint: "toque para borrar",
+    dietMissing: "Dieta no indicada", noRoom: "Sin cuarto", allergies: "Alergias", reportNurse: "avise a la enfermera", critical: "PA en rango crítico — avise ahora",
+    trialEnded: "Prueba terminada", ready: "Daily Log está listo para su turno", payblurb: "$49 al año o $6.99 al mes. Pague a Erica y escriba el código que le manda. El código expira en 5 minutos. Las notas se quedan en este teléfono.",
+    seePrice: "Ver precio y pagar", haveCode: "Ya tengo código", empty: "Agregue un paciente para empezar.", nothing: "Nada anotado hoy. Use los botones de arriba.",
+    patients: "Pacientes", backup: "Respaldo", export: "Exportar respaldo", import: "Importar", erase: "Borrar todos los datos de este teléfono", plan: "Plan", enterCode: "Escribir código", pricePage: "Página de precio", privacy: "Privacidad y aviso",
+    newPatient: "Paciente nuevo", editPatient: "Editar paciente", name: "Nombre", room: "Cuarto / cama", dob: "Fecha de nacimiento", diet: "Dieta / líquidos", codeStatus: "Código", precautions: "Precauciones", careNotes: "Notas de cuidado", save: "Guardar", cancel: "Cancelar",
+    photo: "Tomar foto de los signos", photoHelp: "Tome la foto. Lee los números y los guarda en el lugar correcto.",
+    unlock: "Código", codeExpires: "El código expira en 5 minutos.", codeFrom: "Código de Erica", badCode: "Ese código no es válido.", paid: "Plan pagado", trialLeft: "días de prueba"
+  }
+};
+function tr(key) { return (I18N[state.lang] || I18N.en)[key] || I18N.en[key] || key; }
 const nowISO = () => new Date().toISOString();
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -200,7 +234,8 @@ const defaultState = () => ({
   }],
   entries: [],
   activeId: "demo",
-  hour24: true
+  hour24: true,
+  lang: "en"
 });
 
 let state = load();
@@ -244,11 +279,11 @@ async function unlockCode(code) {
 }
 function paywallHtml() {
   return `<article class="patient-card">
-    <div class="eyebrow">Trial ended</div>
-    <div class="pname">Daily Log is ready for your shift</div>
-    <p class="sub">$49 a year or $6.99 a month. Pay Erica, then enter the code she texts you. The code expires in 5 minutes. Charts stay on this phone.</p>
-    <a class="primary" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:50px;margin-top:12px">See price and pay</a>
-    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">I have a code</button>
+    <div class="eyebrow">${tr("trialEnded")}</div>
+    <div class="pname">${tr("ready")}</div>
+    <p class="sub">${tr("payblurb")}</p>
+    <a class="primary" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:50px;margin-top:12px">${tr("seePrice")}</a>
+    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">${tr("haveCode")}</button>
   </article>`;
 }
 function active() { return state.patients.find(p => p.id === state.activeId) || state.patients[0]; }
@@ -272,15 +307,15 @@ function todayEntries(pid) {
 function vitalFlags(v) {
   const flags = [];
   const t = num(v.temp), p = num(v.pulse), r = num(v.resp), sys = num(v.sys), dia = num(v.dia), o2 = num(v.o2), pain = num(v.pain), glu = num(v.glucose);
-  if (t !== null && (t < 96.8 || t > 100.4)) flags.push(`Temp ${t}°F — report to nurse`);
-  if (p !== null && (p < 60 || p > 100)) flags.push(`Pulse ${p} — report to nurse`);
-  if (r !== null && (r < 12 || r > 20)) flags.push(`Respirations ${r} — report to nurse`);
-  if (sys !== null && (sys < 90 || sys >= 160)) flags.push(`BP ${sys}/${dia ?? "?"} — report to nurse`);
-  else if (dia !== null && (dia < 60 || dia >= 100)) flags.push(`BP ${sys ?? "?"}/${dia} — report to nurse`);
-  if (sys !== null && (sys >= 180 || (dia !== null && dia >= 110))) flags.push("BP in critical range — notify nurse now");
-  if (o2 !== null && o2 < 92) flags.push(`SpO2 ${o2}% — report to nurse`);
-  if (pain !== null && pain >= 7) flags.push(`Pain ${pain}/10 — report to nurse`);
-  if (glu !== null && (glu < 70 || glu > 180)) flags.push(`Glucose ${glu} — report to nurse`);
+  if (t !== null && (t < 96.8 || t > 100.4)) flags.push(`Temp ${t}°F — ${tr("reportNurse")}`);
+  if (p !== null && (p < 60 || p > 100)) flags.push(`Pulse ${p} — ${tr("reportNurse")}`);
+  if (r !== null && (r < 12 || r > 20)) flags.push(`Resp ${r} — ${tr("reportNurse")}`);
+  if (sys !== null && (sys < 90 || sys >= 160)) flags.push(`BP ${sys}/${dia ?? "?"} — ${tr("reportNurse")}`);
+  else if (dia !== null && (dia < 60 || dia >= 100)) flags.push(`BP ${sys ?? "?"}/${dia} — ${tr("reportNurse")}`);
+  if (sys !== null && (sys >= 180 || (dia !== null && dia >= 110))) flags.push(tr("critical"));
+  if (o2 !== null && o2 < 92) flags.push(`SpO2 ${o2}% — ${tr("reportNurse")}`);
+  if (pain !== null && pain >= 7) flags.push(`Pain ${pain}/10 — ${tr("reportNurse")}`);
+  if (glu !== null && (glu < 70 || glu > 180)) flags.push(`Glucose ${glu} — ${tr("reportNurse")}`);
   return flags;
 }
 function num(v) { if (v === "" || v === null || v === undefined) return null; const n = Number(v); return Number.isFinite(n) ? n : null; }
@@ -377,9 +412,9 @@ function whenFrom(data) {
 
 function vitalForm() {
   openSheet(`
-    <h3>Vitals</h3>
-    <p class="note-box">Take the picture. It reads the numbers and saves them in the right boxes.</p>
-    <button type="button" class="primary" id="snapBtn" style="width:100%;margin-bottom:8px">Take picture of vitals</button>
+    <h3>${tr("vitals")}</h3>
+    <p class="note-box">${tr("photoHelp")}</p>
+    <button type="button" class="primary" id="snapBtn" style="width:100%;margin-bottom:8px">${tr("photo")}</button>
     <input id="snap" type="file" accept="image/*" capture="environment" class="hide" />
     <img id="snapPreview" alt="" style="display:none;width:100%;border-radius:14px;margin-bottom:8px;max-height:180px;object-fit:cover" />
     <p id="snapStatus" class="tiny"></p>
@@ -756,35 +791,35 @@ function renderLog() {
       <div class="row">
         <div>
           <div class="pname">${esc(p.name)}</div>
-          <div class="sub">${esc(p.diet || "Diet not set")}</div>
+          <div class="sub">${esc(p.diet || tr("dietMissing"))}</div>
         </div>
-        <button class="room" id="switchBtn">${esc(p.room || "No room")}</button>
+        <button class="room" id="switchBtn">${esc(p.room || tr("noRoom"))}</button>
       </div>
       <div class="meta">
-        ${p.allergies ? `<span class="chip warn">Allergies: ${esc(p.allergies)}</span>` : ""}
+        ${p.allergies ? `<span class="chip warn">${tr("allergies")}: ${esc(p.allergies)}</span>` : ""}
         ${p.code ? `<span class="chip">${esc(p.code)}</span>` : ""}
         ${p.precautions ? `<span class="chip warn">${esc(p.precautions)}</span>` : ""}
       </div>
       ${flags.length ? `<div class="flags">${flags.map(f => `<div class="flag">${esc(f)}</div>`).join("")}</div>` : ""}
     </article>
     <div class="grid6">
-      <button class="quick vitals" data-form="vital"><b>Vitals</b><span>BP and all</span></button>
-      <button class="quick meds" data-form="med"><b>Meds</b><span>Given / held</span></button>
-      <button class="quick food" data-form="food"><b>Intake</b><span>Meal + mL</span></button>
-      <button class="quick urine" data-form="urine"><b>Urine</b><span>Void / Foley</span></button>
-      <button class="quick stool" data-form="stool"><b>Stool</b><span>BM log</span></button>
-      <button class="quick move" data-form="move"><b>Movement</b><span>Turns / walk</span></button>
+      <button class="quick vitals" data-form="vital"><b>${tr("vitals")}</b><span>${tr("vitalsSub")}</span></button>
+      <button class="quick meds" data-form="med"><b>${tr("meds")}</b><span>${tr("medsSub")}</span></button>
+      <button class="quick food" data-form="food"><b>${tr("intake")}</b><span>${tr("intakeSub")}</span></button>
+      <button class="quick urine" data-form="urine"><b>${tr("urine")}</b><span>${tr("urineSub")}</span></button>
+      <button class="quick stool" data-form="stool"><b>${tr("stool")}</b><span>${tr("stoolSub")}</span></button>
+      <button class="quick move" data-form="move"><b>${tr("move")}</b><span>${tr("moveSub")}</span></button>
     </div>
-    <button class="ghost" id="noteBtn" style="width:100%;margin-top:8px">+ Shift note</button>
-    <div class="section-title"><h2>Vitals</h2><span>${vit ? fmtTime(vit.at) : "Tap a box to chart"}</span></div>
+    <button class="ghost" id="noteBtn" style="width:100%;margin-top:8px">${tr("note")}</button>
+    <div class="section-title"><h2>${tr("vitals")}</h2><span>${vit ? fmtTime(vit.at) : tr("tap")}</span></div>
     <div class="vboard" id="vboard">
-      <button class="vtile wide ${vit && vit.data.sys && vitalFlags(vit.data).some(f => f.startsWith("BP")) ? "abn" : ""}" data-form="vital"><div class="k">Blood pressure</div><div class="v">${vit && vit.data.sys ? esc(vit.data.sys + "/" + (vit.data.dia || "?")) : "—"}</div><div class="d">${vit ? esc(vit.data.bpPos || "Position not set") : "Systolic / diastolic"}</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Pulse</div><div class="v">${vit && vit.data.pulse ? esc(vit.data.pulse) : "—"}</div><div class="d">beats / min</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Temp</div><div class="v">${vit && vit.data.temp ? esc(vit.data.temp + "°") : "—"}</div><div class="d">${vit ? esc(vit.data.tempMethod || "°F") : "°F"}</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Respirations</div><div class="v">${vit && vit.data.resp ? esc(vit.data.resp) : "—"}</div><div class="d">breaths / min</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Oxygen</div><div class="v">${vit && vit.data.o2 ? esc(vit.data.o2 + "%") : "—"}</div><div class="d">${vit ? esc(vit.data.o2src || "SpO2") : "SpO2"}</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Pain</div><div class="v">${vit && vit.data.pain !== undefined && vit.data.pain !== "" ? esc(vit.data.pain) : "—"}</div><div class="d">0–10</div></button>
-      <button class="vtile" data-form="vital"><div class="k">Blood glucose</div><div class="v">${vit && vit.data.glucose ? esc(vit.data.glucose) : "—"}</div><div class="d">${vit && vit.data.weight ? esc(vit.data.weight + " lb") : "mg/dL"}</div></button>
+      <button class="vtile wide ${vit && vit.data.sys && vitalFlags(vit.data).some(f => f.startsWith("BP")) ? "abn" : ""}" data-form="vital"><div class="k">${tr("bp")}</div><div class="v">${vit && vit.data.sys ? esc(vit.data.sys + "/" + (vit.data.dia || "?")) : "—"}</div><div class="d">${vit ? esc(vit.data.bpPos || "") : "SYS / DIA"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("pulse")}</div><div class="v">${vit && vit.data.pulse ? esc(vit.data.pulse) : "—"}</div><div class="d">/ min</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("temp")}</div><div class="v">${vit && vit.data.temp ? esc(vit.data.temp + "°") : "—"}</div><div class="d">${vit ? esc(vit.data.tempMethod || "°F") : "°F"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("resp")}</div><div class="v">${vit && vit.data.resp ? esc(vit.data.resp) : "—"}</div><div class="d">/ min</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("oxygen")}</div><div class="v">${vit && vit.data.o2 ? esc(vit.data.o2 + "%") : "—"}</div><div class="d">${vit ? esc(vit.data.o2src || "SpO2") : "SpO2"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("pain")}</div><div class="v">${vit && vit.data.pain !== undefined && vit.data.pain !== "" ? esc(vit.data.pain) : "—"}</div><div class="d">0–10</div></button>
+      <button class="vtile" data-form="vital"><div class="k">${tr("glucose")}</div><div class="v">${vit && vit.data.glucose ? esc(vit.data.glucose) : "—"}</div><div class="d">${vit && vit.data.weight ? esc(vit.data.weight + " lb") : "mg/dL"}</div></button>
     </div>
     <div class="section-title"><h2>Today</h2><span>${new Date().toLocaleDateString()}</span></div>
     <div class="stats">
@@ -888,7 +923,7 @@ function renderReport() {
 
 function renderMore() {
   document.getElementById("view-more").innerHTML = `
-    <div class="section-title"><h2>Patients</h2></div>
+    <div class="section-title"><h2>${tr("patients")}</h2></div>
     ${state.patients.map(p => `<button class="list-btn" data-edit="${p.id}"><b>${esc(p.name)}</b><div class="sub">${esc(p.room || "No room")} · tap to edit</div></button>`).join("")}
     <button class="primary" id="add2" style="width:100%;margin:8px 0">Add patient</button>
     <div class="section-title"><h2>Backup</h2></div>
@@ -899,11 +934,11 @@ function renderMore() {
     <input id="importFile" type="file" accept="application/json" class="hide" />
     <label style="display:flex;align-items:center;gap:8px;margin-top:14px"><input id="h24" type="checkbox" ${state.hour24 ? "checked" : ""} style="width:auto;min-height:0" /> 24-hour time</label>
     <button class="danger" id="wipe" style="width:100%;margin-top:16px">Erase all data on this device</button>
-    <div class="section-title"><h2>Plan</h2></div>
+    <div class="section-title"><h2>${tr("plan")}</h2></div>
     <p class="sub" id="planMore"></p>
-    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">Enter unlock code</button>
-    <a class="ghost" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">Nurse price page</a>
-    <a class="ghost" href="privacy.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">Privacy and disclaimer</a>
+    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">${tr("enterCode")}</button>
+    <a class="ghost" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">${tr("pricePage")}</a>
+    <a class="ghost" href="privacy.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">${tr("privacy")}</a>
     <p class="tiny">Saved only in this browser on this phone. This is a shift aid, not the facility chart, MAR, or a medical device. Do not use it for real patients on a shared phone. Report changes to the nurse.</p>`;
   document.getElementById("add2").onclick = () => patientForm();
   document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => patientForm(state.patients.find(p => p.id === b.dataset.edit)));
@@ -938,12 +973,12 @@ function renderMore() {
 }
 
 function askCode() {
-  openSheet(`<h3>Unlock code</h3><p class="note-box">The code expires in 5 minutes.</p><form id="cf">${field("Code from Erica", input("code", "", {placeholder:"DL-XXXX-XXXX"}))}<div class="actions"><button class="primary" type="submit">Unlock</button></div><button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button></form>`);
+  openSheet(`<h3>${tr("unlock")}</h3><p class="note-box">${tr("codeExpires")}</p><form id="cf">${field(tr("codeFrom"), input("code", "", {placeholder:"DL-XXXX-XXXX"}))}<div class="actions"><button class="primary" type="submit">${tr("unlock")}</button></div><button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">${tr("cancel")}</button></form>`);
   document.getElementById("cancel").onclick = closeSheet;
   document.getElementById("cf").onsubmit = async (e) => {
     e.preventDefault();
     const ok = await unlockCode(formData(e.target).code);
-    if (!ok) { alert("That code is not valid."); return; }
+    if (!ok) { alert(tr("badCode")); return; }
     closeSheet();
     render();
   };
@@ -952,7 +987,12 @@ function render() {
   ensureTrial();
   document.getElementById("clock").textContent = new Date().toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", hour12: !state.hour24 });
   const planLine = document.getElementById("planLine");
-  if (planLine) planLine.textContent = licenseActive() ? "Paid plan" : `${Math.max(trialDaysLeft(), 0)} days left in trial`;
+  if (planLine) planLine.textContent = licenseActive() ? tr("paid") : `${Math.max(trialDaysLeft(), 0)} ${tr("trialLeft")}`;
+  document.getElementById("langBtn").textContent = state.lang === "es" ? "EN" : "ES";
+  document.getElementById("addPatientBtn").textContent = tr("addPatient");
+  document.querySelector(".eyebrow").textContent = tr("charting");
+  document.getElementById("installHint").textContent = tr("install");
+  document.querySelectorAll("nav.tabs button").forEach((b) => { b.textContent = tr(b.dataset.view === "log" ? "log" : b.dataset.view); });
   const view = document.querySelector("nav.tabs button.on")?.dataset.view || "log";
   ["log","timeline","report","more"].forEach(v => document.getElementById("view-" + v).classList.toggle("hide", v !== view));
   if (view === "log") renderLog();
@@ -967,6 +1007,7 @@ document.querySelectorAll("nav.tabs button").forEach(btn => btn.onclick = () => 
   render();
 });
 document.getElementById("addPatientBtn").onclick = () => patientForm();
+document.getElementById("langBtn").onclick = () => { state.lang = state.lang === "es" ? "en" : "es"; save(); render(); };
 render();
 setInterval(() => { document.getElementById("clock").textContent = new Date().toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", hour12: !state.hour24 }); }, 30000);
 if (window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches) {

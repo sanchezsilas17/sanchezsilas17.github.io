@@ -20,12 +20,12 @@
 </head>
 <body>
 <main>
-  <div class="eyebrow">Imperial Valley</div>
+  <div class="eyebrow">Imperial Valley · <button id="lang" style="background:none;border:0;color:#3dbe9a;font-weight:700">Español</button></div>
   <h1>Daily Log</h1>
-  <p>A phone shift log for CNAs and nurses. Blood pressure, pulse, temp, oxygen, meals, urine, stool, and turns. Take a picture of the monitor and the numbers go in the right boxes.</p>
+  <p id="lead">A phone shift log for CNAs and nurses. Blood pressure, pulse, temp, oxygen, meals, urine, stool, and turns. Take a picture of the monitor and the numbers go in the right boxes.</p>
   <div class="card">
     <div class="price">Pay Erica</div>
-    <p>Cash App $SanchezErica17 or Venmo @Erica-Sanchez-245. Put “Daily Log” and your name in the note. The code comes by text after the payment shows. The code expires in 5 minutes.</p>
+    <p id="paynote">Cash App $SanchezErica17 or Venmo @Erica-Sanchez-245. Put “Daily Log” and your name in the note. The code comes by text after the payment shows. The code expires in 5 minutes.</p>
     <div class="pay">
       <a class="btn" href="https://cash.app/$SanchezErica17/49">Cash App $49</a>
       <a class="btn" href="https://venmo.com/u/Erica-Sanchez-245">Venmo $49</a>
@@ -45,7 +45,31 @@
     <a class="ghost" href="./">Open the app</a>
     <a class="ghost" href="privacy.html">Privacy and disclaimer</a>
   </div>
-  <p>$49 is the year pass. $6.99 is the month. This is a personal shift aid, not the facility chart and not a medical device. Text your name after you pay so the code can be matched.</p>
+  <p id="fine">$49 is the year pass. $6.99 is the month. This is a personal shift aid, not the facility chart and not a medical device. Text your name after you pay so the code can be matched.</p>
 </main>
+<script>
+const copy = {
+  en: {
+    btn: "Español",
+    lead: "A phone shift log for CNAs and nurses. Blood pressure, pulse, temp, oxygen, meals, urine, stool, and turns. Take a picture of the monitor and the numbers go in the right boxes.",
+    pay: "Cash App $SanchezErica17 or Venmo @Erica-Sanchez-245. Put Daily Log and your name in the note. The code comes by text after the payment shows. The code expires in 5 minutes.",
+    fine: "$49 is the year pass. $6.99 is the month. This is a personal shift aid, not the facility chart and not a medical device. Text your name after you pay so the code can be matched."
+  },
+  es: {
+    btn: "English",
+    lead: "Registro del turno en el teléfono para CNA y enfermeras. Presión arterial, pulso, temperatura, oxígeno, comidas, orina, heces y cambios de posición. Tome una foto del monitor y los números entran en el lugar correcto.",
+    pay: "Cash App $SanchezErica17 o Venmo @Erica-Sanchez-245. Escriba Daily Log y su nombre en la nota. El código llega por texto después del pago. El código expira en 5 minutos.",
+    fine: "$49 es el pase de un año. $6.99 es el mes. Es una ayuda personal, no el expediente del centro ni un aparato médico. Mande su nombre después de pagar para recibir el código."
+  }
+};
+let lang = "en";
+document.getElementById("lang").onclick = () => {
+  lang = lang === "en" ? "es" : "en";
+  document.getElementById("lang").textContent = copy[lang].btn;
+  document.getElementById("lead").textContent = copy[lang].lead;
+  document.getElementById("paynote").textContent = copy[lang].pay;
+  document.getElementById("fine").textContent = copy[lang].fine;
+};
+</script>
 </body>
 </html>
