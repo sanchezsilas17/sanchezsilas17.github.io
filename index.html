@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Daily Log" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#10211c" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<title>CNA Daily Log</title>
+<style>
+  :root {
+    --bg: #0e1714;
+    --bg-2: #16241f;
+    --card: #1c2e28;
+    --card-2: #243830;
+    --line: rgba(232, 220, 196, 0.12);
+    --ink: #f4efe4;
+    --muted: #b7c4bb;
+    --faint: #7f9086;
+    --teal: #3dbe9a;
+    --teal-dim: rgba(61, 190, 154, 0.16);
+    --amber: #e2a04a;
+    --amber-dim: rgba(226, 160, 74, 0.16);
+    --rose: #e36b6b;
+    --rose-dim: rgba(227, 107, 107, 0.16);
+    --blue: #7eb6d9;
+    --shadow: 0 10px 30px rgba(0,0,0,.28);
+    --radius: 18px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-t: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: "Avenir Next", "Segoe UI", sans-serif; }
+  body { min-height: 100dvh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  .app { max-width: 520px; margin: 0 auto; min-height: 100dvh; padding: calc(14px + var(--safe-t)) 16px calc(92px + var(--safe-b)); }
+  header.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .eyebrow { letter-spacing: .16em; text-transform: uppercase; font-size: 11px; color: var(--teal); font-weight: 700; }
+  h1 { font-size: 28px; line-height: 1; margin: 0; font-weight: 750; letter-spacing: -0.03em; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .icon-btn, .ghost {
+    background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    border-radius: 14px; padding: 10px 12px; min-height: 44px;
+  }
+  .ghost { background: transparent; }
+  .patient-card {
+    background: linear-gradient(160deg, #234238, #173028 55%, #14241f);
+    border: 1px solid var(--line); border-radius: 22px; padding: 16px;
+    box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .pname { font-size: 22px; font-weight: 750; letter-spacing: -0.02em; }
+  .room { background: var(--teal-dim); color: var(--teal); border-radius: 999px; padding: 6px 10px; font-weight: 700; font-size: 13px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { background: rgba(0,0,0,.22); border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; font-size: 12px; color: var(--muted); }
+  .chip.warn { color: #ffd7a8; border-color: rgba(226,160,74,.4); background: var(--amber-dim); }
+  .flags { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .flag { background: var(--rose-dim); color: #ffd0d0; border-radius: 12px; padding: 8px 10px; font-size: 13px; }
+  .grid6 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 6px; }
+  .quick {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    min-height: 78px; padding: 10px 8px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .quick b { font-size: 14px; }
+  .quick span { color: var(--faint); font-size: 11px; }
+  .quick.vitals { box-shadow: inset 3px 0 0 var(--teal); }
+  .quick.meds { box-shadow: inset 3px 0 0 var(--amber); }
+  .quick.food { box-shadow: inset 3px 0 0 #d7c07a; }
+  .quick.urine { box-shadow: inset 3px 0 0 var(--blue); }
+  .quick.stool { box-shadow: inset 3px 0 0 #c98b62; }
+  .quick.move { box-shadow: inset 3px 0 0 #9d8adf; }
+  .section-title { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 2px 8px; }
+  .section-title h2 { margin: 0; font-size: 16px; }
+  .section-title span { color: var(--faint); font-size: 12px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .stat .k { color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .stat .v { font-size: 20px; font-weight: 750; margin-top: 4px; }
+  .stat .d { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .feed { display: flex; flex-direction: column; gap: 8px; }
+  .entry {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px;
+    display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; align-items: start;
+  }
+  .entry .when { color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .entry .what { font-weight: 700; }
+  .entry .detail { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 999px; padding: 4px 7px; }
+  .tag.vital { background: var(--teal-dim); color: var(--teal); }
+  .tag.med { background: var(--amber-dim); color: var(--amber); }
+  .tag.intake { background: rgba(215,192,122,.16); color: #e7d59a; }
+  .tag.urine { background: rgba(126,182,217,.16); color: var(--blue); }
+  .tag.stool { background: rgba(201,139,98,.18); color: #e2b08a; }
+  .tag.move { background: rgba(157,138,223,.18); color: #c7bcef; }
+  .tag.note { background: rgba(255,255,255,.06); color: var(--muted); }
+  .abn { color: #ffb4b4; font-weight: 700; }
+  nav.tabs {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(520px, 100%);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    padding: 8px 12px calc(10px + var(--safe-b));
+    background: rgba(14,23,20,.92); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
+  }
+  nav.tabs button { background: transparent; border: 0; color: var(--faint); border-radius: 12px; min-height: 48px; }
+  nav.tabs button.on { background: var(--card-2); color: var(--ink); }
+  .sheet {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; z-index: 20;
+    align-items: flex-end; justify-content: center;
+  }
+  .sheet.open { display: flex; }
+  .panel {
+    width: min(520px, 100%); max-height: 92dvh; overflow: auto;
+    background: var(--bg-2); border-radius: 22px 22px 0 0; padding: 14px 16px calc(18px + var(--safe-b));
+    border: 1px solid var(--line);
+  }
+  .panel h3 { margin: 4px 0 12px; font-size: 22px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+  input, select, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; min-height: 46px; outline: none;
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .split3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .primary { flex: 1; background: var(--teal); color: #08211a; border: 0; border-radius: 14px; min-height: 50px; font-weight: 800; }
+  .danger { background: var(--rose-dim); color: #ffd0d0; border: 0; border-radius: 14px; min-height: 50px; padding: 0 14px; }
+  .list-btn {
+    width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px; margin-bottom: 8px;
+  }
+  .empty { color: var(--faint); padding: 18px 8px; text-align: center; }
+  .note-box { background: var(--amber-dim); color: #ffe6c2; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 8px; }
+  .report { white-space: pre-wrap; background: var(--bg); border-radius: 14px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.45; }
+  .hide { display: none !important; }
+  .tiny { font-size: 12px; color: var(--faint); margin-top: 10px; }
+  .install { display: none; background: var(--amber-dim); color: #ffe6c2; border-radius: 14px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="install" id="installHint">Open this page in Safari, tap Share, then Add to Home Screen. A file from Files cannot be added.</div>
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">Shift charting</div>
+      <h1>Daily Log</h1>
+      <div class="sub" id="clock"></div>
+    </div>
+    <button class="icon-btn" id="addPatientBtn">+ Patient</button>
+  </header>
+
+  <section id="view-log"></section>
+  <section id="view-timeline" class="hide"></section>
+  <section id="view-report" class="hide"></section>
+  <section id="view-more" class="hide"></section>
+</div>
+
+<nav class="tabs">
+  <button data-view="log" class="on">Log</button>
+  <button data-view="timeline">Timeline</button>
+  <button data-view="report">Report</button>
+  <button data-view="more">More</button>
+</nav>
+
+<div class="sheet" id="sheet">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+const KEY = "cna-daily-log-v1";
+const nowISO = () => new Date().toISOString();
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+const defaultState = () => ({
+  patients: [{
+    id: "demo",
+    name: "Sample Resident",
+    room: "12A",
+    dob: "",
+    allergies: "NKDA",
+    diet: "Regular, thin liquids",
+    code: "Full code",
+    precautions: "",
+    notes: "Demo only. Delete from More."
+  }],
+  entries: [],
+  activeId: "demo",
+  hour24: true
+});
+
+let state = load();
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if (!parsed.patients?.length) return defaultState();
+    return Object.assign(defaultState(), parsed);
+  } catch { return defaultState(); }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function active() { return state.patients.find(p => p.id === state.activeId) || state.patients[0]; }
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: !state.hour24 });
+}
+function fmtDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: !state.hour24 });
+}
+function todayKey(iso = nowISO()) { return new Date(iso).toDateString(); }
+function entriesFor(pid, type) {
+  return state.entries.filter(e => e.patientId === pid && (!type || e.type === type));
+}
+function todayEntries(pid) {
+  return state.entries.filter(e => e.patientId === pid && todayKey(e.at) === todayKey());
+}
+
+function vitalFlags(v) {
+  const flags = [];
+  const t = num(v.temp), p = num(v.pulse), r = num(v.resp), sys = num(v.sys), dia = num(v.dia), o2 = num(v.o2), pain = num(v.pain), glu = num(v.glucose);
+  if (t !== null && (t < 96.8 || t > 100.4)) flags.push(`Temp ${t}°F — report to nurse`);
+  if (p !== null && (p < 60 || p > 100)) flags.push(`Pulse ${p} — report to nurse`);
+  if (r !== null && (r < 12 || r > 20)) flags.push(`Respirations ${r} — report to nurse`);
+  if (sys !== null && (sys < 90 || sys >= 160)) flags.push(`BP ${sys}/${dia ?? "?"} — report to nurse`);
+  else if (dia !== null && (dia < 60 || dia >= 100)) flags.push(`BP ${sys ?? "?"}/${dia} — report to nurse`);
+  if (sys !== null && (sys >= 180 || (dia !== null && dia >= 110))) flags.push("BP in critical range — notify nurse now");
+  if (o2 !== null && o2 < 92) flags.push(`SpO2 ${o2}% — report to nurse`);
+  if (pain !== null && pain >= 7) flags.push(`Pain ${pain}/10 — report to nurse`);
+  if (glu !== null && (glu < 70 || glu > 180)) flags.push(`Glucose ${glu} — report to nurse`);
+  return flags;
+}
+function num(v) { if (v === "" || v === null || v === undefined) return null; const n = Number(v); return Number.isFinite(n) ? n : null; }
+
+function openSheet(html) {
+  document.getElementById("panel").innerHTML = html;
+  document.getElementById("sheet").classList.add("open");
+}
+function closeSheet() { document.getElementById("sheet").classList.remove("open"); }
+document.getElementById("sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+
+function field(label, html) { return `<label>${label}</label>${html}`; }
+function input(name, val = "", opts = {}) {
+  const type = opts.type || "text";
+  const ph = opts.placeholder ? ` placeholder="${opts.placeholder}"` : "";
+  const step = opts.step ? ` step="${opts.step}"` : "";
+  return `<input name="${name}" type="${type}" value="${esc(val)}"${ph}${step} />`;
+}
+function select(name, options, val = "") {
+  return `<select name="${name}">${options.map(o => `<option ${o === val ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
+}
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])); }
+
+function formData(form) {
+  const data = {};
+  new FormData(form).forEach((v, k) => { data[k] = String(v).trim(); });
+  return data;
+}
+
+function addEntry(type, data) {
+  state.entries.unshift({ id: uid(), patientId: active().id, type, at: data.at || nowISO(), data });
+  save();
+  closeSheet();
+  render();
+}
+
+function patientForm(p = {}) {
+  openSheet(`
+    <h3>${p.id ? "Edit patient" : "New patient"}</h3>
+    <form id="pf">
+      ${field("Name", input("name", p.name || "", {placeholder:"Last, First"}))}
+      <div class="split">
+        ${field("Room / bed", input("room", p.room || ""))}
+        ${field("Date of birth", input("dob", p.dob || "", {type:"date"}))}
+      </div>
+      ${field("Allergies", input("allergies", p.allergies || "", {placeholder:"NKDA or list"}))}
+      ${field("Diet / fluid orders", input("diet", p.diet || "", {placeholder:"Regular, nectar thick, fluid restriction"}))}
+      <div class="split">
+        ${field("Code status", input("code", p.code || ""))}
+        ${field("Precautions", input("precautions", p.precautions || "", {placeholder:"Fall, aspiration, contact"}))}
+      </div>
+      ${field("Care notes", `<textarea name="notes">${esc(p.notes || "")}</textarea>`)}
+      <div class="actions">
+        ${p.id && p.id !== "keep" ? `<button type="button" class="danger" id="delP">Delete</button>` : ""}
+        <button class="primary" type="submit">Save</button>
+      </div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("pf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    if (!data.name) return;
+    if (p.id) {
+      Object.assign(state.patients.find(x => x.id === p.id), data);
+    } else {
+      const id = uid();
+      state.patients.push({ id, ...data });
+      state.activeId = id;
+    }
+    save(); closeSheet(); render();
+  };
+  const del = document.getElementById("delP");
+  if (del) del.onclick = () => {
+    if (!confirm("Delete this patient and their log entries on this device?")) return;
+    state.entries = state.entries.filter(e => e.patientId !== p.id);
+    state.patients = state.patients.filter(x => x.id !== p.id);
+    state.activeId = state.patients[0]?.id || "";
+    if (!state.patients.length) state = defaultState();
+    save(); closeSheet(); render();
+  };
+}
+
+function timeField(label = "Time") {
+  const d = new Date();
+  const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  return field(label, input("whenLocal", local, {type:"datetime-local"}));
+}
+function whenFrom(data) {
+  if (!data.whenLocal) return nowISO();
+  const d = new Date(data.whenLocal);
+  return Number.isNaN(d.getTime()) ? nowISO() : d.toISOString();
+}
+
+function vitalForm() {
+  openSheet(`
+    <h3>Vitals</h3>
+    <p class="note-box">Flags use common adult ranges only. They are reminders to tell the nurse, not a diagnosis. Follow your facility policy.</p>
+    <form id="vf">
+      ${timeField()}
+      <div class="split">
+        ${field("Temp °F", input("temp", "", {type:"number", step:"0.1", placeholder:"98.6"}))}
+        ${field("Method", select("tempMethod", ["Oral","Tympanic","Axillary","Temporal","Rectal"]))}
+      </div>
+      <div class="split3">
+        ${field("Pulse", input("pulse", "", {type:"number", placeholder:"72"}))}
+        ${field("Resp", input("resp", "", {type:"number", placeholder:"16"}))}
+        ${field("SpO2 %", input("o2", "", {type:"number", placeholder:"97"}))}
+      </div>
+      <div class="split">
+        ${field("BP systolic", input("sys", "", {type:"number", placeholder:"120"}))}
+        ${field("BP diastolic", input("dia", "", {type:"number", placeholder:"80"}))}
+      </div>
+      <div class="split">
+        ${field("Position", select("bpPos", ["Sitting","Lying","Standing","Orthostatic"]))}
+        ${field("O2 source", input("o2src", "", {placeholder:"Room air / 2L NC"}))}
+      </div>
+      <div class="split">
+        ${field("Pain 0–10", input("pain", "", {type:"number", placeholder:"0"}))}
+        ${field("Glucose", input("glucose", "", {type:"number", placeholder:"optional"}))}
+      </div>
+      ${field("Note", input("note", "", {placeholder:"Refused, irregular pulse, etc."}))}
+      <div class="actions"><button class="primary" type="submit">Save vitals</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("vf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    data.at = whenFrom(data);
+    addEntry("vital", data);
+  };
+}
+
+function medForm() {
+  openSheet(`
+    <h3>Medication log</h3>
+    <p class="note-box">Log only what your role allows. In many facilities CNAs do not administer meds unless certified as a med aide. This is a personal tracker, not the official MAR.</p>
+    <form id="mf">
+      ${timeField()}
+      ${field("Medication", input("name", "", {placeholder:"Name"}))}
+      <div class="split">
+        ${field("Dose", input("dose", "", {placeholder:"500 mg"}))}
+        ${field("Route", select("route", ["PO","SL","Topical","Eye","Ear","Inhaler","SQ","IM","Other"]))}
+      </div>
+      ${field("Status", select("status", ["Given","Assisted","Observed","Held","Refused","Not available"]))}
+      ${field("Note", input("note", "", {placeholder:"Right patient, reason held, refusal"}))}
+      <div class="actions"><button class="primary" type="submit">Save med</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("mf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    if (!data.name) return;
+    data.at = whenFrom(data);
+    addEntry("med", data);
+  };
+}
+
+function foodForm() {
+  openSheet(`
+    <h3>Food & fluids</h3>
+    <form id="ff">
+      ${timeField()}
+      <div class="split">
+        ${field("Meal", select("meal", ["Breakfast","Lunch","Dinner","Snack","HS snack","Supplement"]))}
+        ${field("% eaten", select("pct", ["100","75","50","25","0","Refused","NPO"]))}
+      </div>
+      <div class="split">
+        ${field("Fluid mL", input("ml", "", {type:"number", placeholder:"240"}))}
+        ${field("Fluid type", input("fluid", "", {placeholder:"Water, juice, broth"}))}
+      </div>
+      ${field("Assist", select("assist", ["Independent","Setup","Supervision","Partial assist","Total assist","Tube feeding observed"]))}
+      ${field("Note", input("note", "", {placeholder:"Coughing with thin liquids, pocketing food"}))}
+      <div class="actions"><button class="primary" type="submit">Save intake</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("ff").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    data.at = whenFrom(data);
+    addEntry("intake", data);
+  };
+}
+
+function urineForm() {
+  openSheet(`
+    <h3>Urine</h3>
+    <form id="uf">
+      ${timeField()}
+      <div class="split">
+        ${field("Amount mL", input("ml", "", {type:"number", placeholder:"300 or leave blank"}))}
+        ${field("Count", select("count", ["1 void","Incontinent x1","Measured","Unable to measure"]))}
+      </div>
+      ${field("Method", select("method", ["Toilet","Urinal","Commode","Brief","Foley","Condom cath","Hat / specimen","Ostomy"]))}
+      <div class="split">
+        ${field("Continent", select("continent", ["Continent","Incontinent","Catheter"]))}
+        ${field("Color", select("color", ["Yellow","Amber","Dark","Pink / red","Cloudy","Bloody","Other"]))}
+      </div>
+      ${field("Note", input("note", "", {placeholder:"Burning, odor, no void this shift"}))}
+      <div class="actions"><button class="primary" type="submit">Save urine</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("uf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    data.at = whenFrom(data);
+    addEntry("urine", data);
+  };
+}
+
+function stoolForm() {
+  openSheet(`
+    <h3>Stool</h3>
+    <form id="sf">
+      ${timeField()}
+      <div class="split">
+        ${field("Amount", select("amount", ["Small","Medium","Large","Smear","None this shift"]))}
+        ${field("Consistency", select("consistency", ["Formed","Soft","Loose","Liquid","Hard / constipated","Unknown"]))}
+      </div>
+      <div class="split">
+        ${field("Color", select("color", ["Brown","Dark","Black","Red","Clay","Green","Other"]))}
+        ${field("Continent", select("continent", ["Continent","Incontinent","Ostomy"]))}
+      </div>
+      ${field("Note", input("note", "", {placeholder:"Last BM date if none, blood noted"}))}
+      <div class="actions"><button class="primary" type="submit">Save stool</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("sf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    data.at = whenFrom(data);
+    addEntry("stool", data);
+  };
+}
+
+function moveForm() {
+  openSheet(`
+    <h3>Movement</h3>
+    <form id="mv">
+      ${timeField()}
+      ${field("Activity", select("activity", ["Reposition","Ambulation","Transfer","Dangle","Up in chair","ROM","Bed rest","Refused"]))}
+      <div class="split">
+        ${field("Position / destination", input("position", "", {placeholder:"Left side, chair, hallway"}))}
+        ${field("Assist", select("assist", ["Independent","Supervision","1 assist","2 assist","Mechanical lift","Total assist"]))}
+      </div>
+      <div class="split">
+        ${field("Device", input("device", "", {placeholder:"Gait belt, walker, cane"}))}
+        ${field("Distance / time", input("distance", "", {placeholder:"50 ft or 30 min"}))}
+      </div>
+      ${field("Skin / response", input("note", "", {placeholder:"Heels clear, tolerated well, dizziness"}))}
+      <div class="actions"><button class="primary" type="submit">Save movement</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("mv").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    data.at = whenFrom(data);
+    addEntry("move", data);
+  };
+}
+
+function noteForm() {
+  openSheet(`
+    <h3>Shift note</h3>
+    <form id="nf">
+      ${timeField()}
+      ${field("Note", `<textarea name="note" placeholder="Behavior, skin, pain, family, refusal, what you reported to the nurse"></textarea>`)}
+      <div class="actions"><button class="primary" type="submit">Save note</button></div>
+      <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
+    </form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("nf").onsubmit = (e) => {
+    e.preventDefault();
+    const data = formData(e.target);
+    if (!data.note) return;
+    data.at = whenFrom(data);
+    addEntry("note", data);
+  };
+}
+
+function describe(e) {
+  const d = e.data || {};
+  if (e.type === "vital") {
+    const bits = [];
+    if (d.temp) bits.push(`${d.temp}°F ${d.tempMethod || ""}`.trim());
+    if (d.pulse) bits.push(`P ${d.pulse}`);
+    if (d.resp) bits.push(`R ${d.resp}`);
+    if (d.sys) bits.push(`BP ${d.sys}/${d.dia || "?"}`);
+    if (d.o2) bits.push(`SpO2 ${d.o2}%`);
+    if (d.pain) bits.push(`Pain ${d.pain}`);
+    if (d.glucose) bits.push(`BG ${d.glucose}`);
+    return bits.join(" · ") + (d.note ? ` — ${d.note}` : "");
+  }
+  if (e.type === "med") return `${d.name} ${d.dose || ""} ${d.route || ""} · ${d.status || ""}${d.note ? " — " + d.note : ""}`.trim();
+  if (e.type === "intake") return `${d.meal || "Intake"} ${d.pct || ""}%${d.ml ? ` · ${d.ml} mL ${d.fluid || ""}` : ""} · ${d.assist || ""}${d.note ? " — " + d.note : ""}`;
+  if (e.type === "urine") return `${d.ml ? d.ml + " mL · " : ""}${d.method || ""} · ${d.continent || ""} · ${d.color || ""}${d.note ? " — " + d.note : ""}`;
+  if (e.type === "stool") return `${d.amount || ""} · ${d.consistency || ""} · ${d.color || ""} · ${d.continent || ""}${d.note ? " — " + d.note : ""}`;
+  if (e.type === "move") return `${d.activity || ""} ${d.position || ""} · ${d.assist || ""}${d.device ? " · " + d.device : ""}${d.distance ? " · " + d.distance : ""}${d.note ? " — " + d.note : ""}`;
+  return d.note || "";
+}
+
+function lastOf(type) {
+  return entriesFor(active().id, type)[0];
+}
+function sumMl(type) {
+  return todayEntries(active().id).filter(e => e.type === type).reduce((s, e) => s + (num(e.data.ml) || 0), 0);
+}
+
+function renderLog() {
+  const p = active();
+  if (!p) {
+    document.getElementById("view-log").innerHTML = `<div class="empty">Add a patient to start a shift log.</div>`;
+    return;
+  }
+  const vit = lastOf("vital");
+  const flags = vit ? vitalFlags(vit.data) : [];
+  const turns = todayEntries(p.id).filter(e => e.type === "move").length;
+  const meals = todayEntries(p.id).filter(e => e.type === "intake");
+  const lastMeal = meals[0];
+  document.getElementById("view-log").innerHTML = `
+    <article class="patient-card">
+      <div class="row">
+        <div>
+          <div class="pname">${esc(p.name)}</div>
+          <div class="sub">${esc(p.diet || "Diet not set")}</div>
+        </div>
+        <button class="room" id="switchBtn">${esc(p.room || "No room")}</button>
+      </div>
+      <div class="meta">
+        ${p.allergies ? `<span class="chip warn">Allergies: ${esc(p.allergies)}</span>` : ""}
+        ${p.code ? `<span class="chip">${esc(p.code)}</span>` : ""}
+        ${p.precautions ? `<span class="chip warn">${esc(p.precautions)}</span>` : ""}
+      </div>
+      ${flags.length ? `<div class="flags">${flags.map(f => `<div class="flag">${esc(f)}</div>`).join("")}</div>` : ""}
+    </article>
+    <div class="grid6">
+      <button class="quick vitals" data-form="vital"><b>Vitals</b><span>TPR, BP, O2</span></button>
+      <button class="quick meds" data-form="med"><b>Meds</b><span>Given / held</span></button>
+      <button class="quick food" data-form="food"><b>Intake</b><span>Meal + mL</span></button>
+      <button class="quick urine" data-form="urine"><b>Urine</b><span>Void / Foley</span></button>
+      <button class="quick stool" data-form="stool"><b>Stool</b><span>BM log</span></button>
+      <button class="quick move" data-form="move"><b>Movement</b><span>Turns / walk</span></button>
+    </div>
+    <button class="ghost" id="noteBtn" style="width:100%;margin-top:8px">+ Shift note</button>
+    <div class="section-title"><h2>Today</h2><span>${new Date().toLocaleDateString()}</span></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Last vitals</div><div class="v">${vit ? fmtTime(vit.at) : "—"}</div><div class="d">${vit ? esc(describe(vit)) : "Not charted"}</div></div>
+      <div class="stat"><div class="k">Intake</div><div class="v">${sumMl("intake")} mL</div><div class="d">${lastMeal ? esc((lastMeal.data.meal || "") + " " + (lastMeal.data.pct || "") + "%") : "No meal logged"}</div></div>
+      <div class="stat"><div class="k">Urine</div><div class="v">${sumMl("urine")} mL</div><div class="d">${todayEntries(p.id).filter(e => e.type === "urine").length} entries</div></div>
+      <div class="stat"><div class="k">Turns / activity</div><div class="v">${turns}</div><div class="d">${lastOf("stool") ? "Last BM " + fmtDateTime(lastOf("stool").at) : "No BM logged"}</div></div>
+    </div>
+    <div class="section-title"><h2>Latest</h2><span>tap an entry to delete</span></div>
+    <div class="feed" id="feed"></div>
+  `;
+  document.getElementById("switchBtn").onclick = switcher;
+  document.getElementById("noteBtn").onclick = noteForm;
+  document.querySelectorAll("[data-form]").forEach(btn => {
+    btn.onclick = () => ({vital:vitalForm, med:medForm, food:foodForm, urine:urineForm, stool:stoolForm, move:moveForm}[btn.dataset.form])();
+  });
+  const feed = document.getElementById("feed");
+  const list = todayEntries(p.id).slice(0, 12);
+  feed.innerHTML = list.length ? list.map(e => entryHtml(e)).join("") : `<div class="empty">Nothing logged today. Use the buttons above.</div>`;
+  feed.querySelectorAll("[data-id]").forEach(el => el.onclick = () => {
+    if (confirm("Delete this entry?")) {
+      state.entries = state.entries.filter(x => x.id !== el.dataset.id);
+      save(); render();
+    }
+  });
+}
+
+function entryHtml(e) {
+  const labels = {vital:"Vitals", med:"Med", intake:"Intake", urine:"Urine", stool:"Stool", move:"Move", note:"Note"};
+  return `<article class="entry" data-id="${e.id}">
+    <div class="when">${fmtTime(e.at)}</div>
+    <div><div class="what">${esc(labels[e.type] || e.type)}</div><div class="detail">${esc(describe(e))}</div></div>
+    <span class="tag ${e.type}">${esc(labels[e.type] || "")}</span>
+  </article>`;
+}
+
+function switcher() {
+  const cards = state.patients.map(p => `<button class="list-btn" data-id="${p.id}"><b>${esc(p.name)}</b><div class="sub">${esc(p.room || "No room")} · ${esc(p.allergies || "")}</div></button>`).join("");
+  openSheet(`<h3>Patients</h3>${cards}<button class="primary" id="newP" style="width:100%;margin-top:8px">Add patient</button><button class="ghost" id="cancel" style="width:100%;margin-top:8px">Close</button>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("newP").onclick = () => patientForm();
+  document.querySelectorAll("#panel [data-id]").forEach(b => b.onclick = () => {
+    state.activeId = b.dataset.id; save(); closeSheet(); render();
+  });
+}
+
+function renderTimeline() {
+  const p = active();
+  const list = entriesFor(p.id);
+  document.getElementById("view-timeline").innerHTML = `
+    <div class="section-title"><h2>${esc(p.name)}</h2><span>${list.length} entries</span></div>
+    <div class="feed">${list.length ? list.map(entryHtml).join("") : `<div class="empty">No history yet.</div>`}</div>`;
+  document.querySelectorAll("#view-timeline [data-id]").forEach(el => el.onclick = () => {
+    if (confirm("Delete this entry?")) {
+      state.entries = state.entries.filter(x => x.id !== el.dataset.id);
+      save(); render();
+    }
+  });
+}
+
+function buildReport() {
+  const p = active();
+  const todays = todayEntries(p.id).slice().reverse();
+  const lines = [];
+  lines.push(`CNA DAILY LOG — ${new Date().toLocaleDateString()}`);
+  lines.push(`${p.name}  Room ${p.room || "—"}`);
+  lines.push(`Allergies: ${p.allergies || "—"}`);
+  lines.push(`Diet: ${p.diet || "—"}`);
+  lines.push(`Code: ${p.code || "—"}  Precautions: ${p.precautions || "—"}`);
+  lines.push("");
+  lines.push(`INTAKE ${sumMl("intake")} mL    URINE ${sumMl("urine")} mL`);
+  const by = {vital:[], med:[], intake:[], urine:[], stool:[], move:[], note:[]};
+  todays.forEach(e => by[e.type]?.push(`${fmtTime(e.at)}  ${describe(e)}`));
+  const titles = {vital:"VITALS", med:"MEDICATIONS", intake:"FOOD / FLUIDS", urine:"URINE", stool:"STOOL", move:"MOVEMENT", note:"NOTES"};
+  Object.keys(titles).forEach(k => {
+    lines.push("");
+    lines.push(titles[k]);
+    lines.push(by[k].length ? by[k].join("\n") : "—");
+  });
+  lines.push("");
+  lines.push("Personal shift aid only. Copy into the official record per facility policy. Not a medical record.");
+  return lines.join("\n");
+}
+
+function renderReport() {
+  const text = buildReport();
+  document.getElementById("view-report").innerHTML = `
+    <div class="section-title"><h2>End of shift</h2><span>${esc(active().name)}</span></div>
+    <div class="report" id="reportText">${esc(text)}</div>
+    <div class="actions">
+      <button class="primary" id="copyReport">Copy report</button>
+    </div>
+    <p class="tiny">Paste into your notes app or read it in report. Do not put this file in the chart unless your facility allows personal aids.</p>`;
+  document.getElementById("copyReport").onclick = async () => {
+    try { await navigator.clipboard.writeText(text); document.getElementById("copyReport").textContent = "Copied"; }
+    catch { alert("Select the report and copy it manually."); }
+  };
+}
+
+function renderMore() {
+  document.getElementById("view-more").innerHTML = `
+    <div class="section-title"><h2>Patients</h2></div>
+    ${state.patients.map(p => `<button class="list-btn" data-edit="${p.id}"><b>${esc(p.name)}</b><div class="sub">${esc(p.room || "No room")} · tap to edit</div></button>`).join("")}
+    <button class="primary" id="add2" style="width:100%;margin:8px 0">Add patient</button>
+    <div class="section-title"><h2>Backup</h2></div>
+    <div class="actions">
+      <button class="ghost" id="exportBtn" style="flex:1">Export backup</button>
+      <button class="ghost" id="importBtn" style="flex:1">Import</button>
+    </div>
+    <input id="importFile" type="file" accept="application/json" class="hide" />
+    <label style="display:flex;align-items:center;gap:8px;margin-top:14px"><input id="h24" type="checkbox" ${state.hour24 ? "checked" : ""} style="width:auto;min-height:0" /> 24-hour time</label>
+    <button class="danger" id="wipe" style="width:100%;margin-top:16px">Erase all data on this device</button>
+    <p class="tiny">Saved only in this browser on this phone. Export a backup before clearing Safari data. This app does not send charts anywhere. It is not an EHR, MAR, or substitute for reporting a change in condition to the nurse.</p>`;
+  document.getElementById("add2").onclick = () => patientForm();
+  document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => patientForm(state.patients.find(p => p.id === b.dataset.edit)));
+  document.getElementById("h24").onchange = (e) => { state.hour24 = e.target.checked; save(); render(); };
+  document.getElementById("exportBtn").onclick = () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "cna-daily-log-backup.json";
+    a.click();
+  };
+  document.getElementById("importBtn").onclick = () => document.getElementById("importFile").click();
+  document.getElementById("importFile").onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if (!parsed.patients) return alert("That file is not a daily log backup.");
+    state = Object.assign(defaultState(), parsed);
+    save(); render();
+  };
+  document.getElementById("wipe").onclick = () => {
+    if (!confirm("Erase every patient and entry stored in this browser?")) return;
+    localStorage.removeItem(KEY);
+    state = defaultState();
+    save(); render();
+  };
+}
+
+function render() {
+  document.getElementById("clock").textContent = new Date().toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", hour12: !state.hour24 });
+  const view = document.querySelector("nav.tabs button.on")?.dataset.view || "log";
+  ["log","timeline","report","more"].forEach(v => document.getElementById("view-" + v).classList.toggle("hide", v !== view));
+  if (view === "log") renderLog();
+  if (view === "timeline") renderTimeline();
+  if (view === "report") renderReport();
+  if (view === "more") renderMore();
+}
+
+document.querySelectorAll("nav.tabs button").forEach(btn => btn.onclick = () => {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  render();
+});
+document.getElementById("addPatientBtn").onclick = () => patientForm();
+render();
+setInterval(() => { document.getElementById("clock").textContent = new Date().toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", hour12: !state.hour24 }); }, 30000);
+if (window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches) {
+  document.getElementById("installHint").style.display = "none";
+} else if (location.protocol === "https:" || location.protocol === "http:") {
+  document.getElementById("installHint").style.display = "block";
+}
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
