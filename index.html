@@ -246,7 +246,7 @@ function paywallHtml() {
   return `<article class="patient-card">
     <div class="eyebrow">Trial ended</div>
     <div class="pname">Daily Log is ready for your shift</div>
-    <p class="sub">$49 a year or $6.99 a month. Pay Erica, then enter the code she texts you. Charts stay on this phone.</p>
+    <p class="sub">$49 a year or $6.99 a month. Pay Erica, then enter the code she texts you. The code expires in 5 minutes. Charts stay on this phone.</p>
     <a class="primary" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:50px;margin-top:12px">See price and pay</a>
     <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">I have a code</button>
   </article>`;
@@ -938,7 +938,7 @@ function renderMore() {
 }
 
 function askCode() {
-  openSheet(`<h3>Unlock code</h3><form id="cf">${field("Code from Erica", input("code", "", {placeholder:"DL-XXXX-XXXX"}))}<div class="actions"><button class="primary" type="submit">Unlock</button></div><button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button></form>`);
+  openSheet(`<h3>Unlock code</h3><p class="note-box">The code expires in 5 minutes.</p><form id="cf">${field("Code from Erica", input("code", "", {placeholder:"DL-XXXX-XXXX"}))}<div class="actions"><button class="primary" type="submit">Unlock</button></div><button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button></form>`);
   document.getElementById("cancel").onclick = closeSheet;
   document.getElementById("cf").onsubmit = async (e) => {
     e.preventDefault();
