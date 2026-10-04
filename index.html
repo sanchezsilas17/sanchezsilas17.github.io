@@ -79,6 +79,13 @@
   .section-title h2 { margin: 0; font-size: 16px; }
   .section-title span { color: var(--faint); font-size: 12px; }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vboard { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vtile { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; text-align: left; min-height: 78px; }
+  .vtile.wide { grid-column: 1 / -1; }
+  .vtile .k { color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .vtile .v { font-size: 22px; font-weight: 750; margin-top: 4px; letter-spacing: -0.03em; }
+  .vtile .d { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .vtile.abn { border-color: rgba(227,107,107,.45); background: var(--rose-dim); }
   .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
   .stat .k { color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   .stat .v { font-size: 20px; font-weight: 750; margin-top: 4px; }
@@ -331,31 +338,32 @@ function whenFrom(data) {
 function vitalForm() {
   openSheet(`
     <h3>Vitals</h3>
-    <p class="note-box">Flags use common adult ranges only. They are reminders to tell the nurse, not a diagnosis. Follow your facility policy.</p>
+    <p class="note-box">Blood pressure, pulse, temp, respirations, oxygen, pain, and glucose. Flags are reminders to tell the nurse, not a diagnosis.</p>
     <form id="vf">
       ${timeField()}
       <div class="split">
-        ${field("Temp °F", input("temp", "", {type:"number", step:"0.1", placeholder:"98.6"}))}
-        ${field("Method", select("tempMethod", ["Oral","Tympanic","Axillary","Temporal","Rectal"]))}
+        ${field("Blood pressure systolic", input("sys", "", {type:"number", placeholder:"120"}))}
+        ${field("Blood pressure diastolic", input("dia", "", {type:"number", placeholder:"80"}))}
+      </div>
+      <div class="split">
+        ${field("BP position", select("bpPos", ["Sitting","Lying","Standing","Orthostatic"]))}
+        ${field("Pulse", input("pulse", "", {type:"number", placeholder:"72"}))}
       </div>
       <div class="split3">
-        ${field("Pulse", input("pulse", "", {type:"number", placeholder:"72"}))}
+        ${field("Temp °F", input("temp", "", {type:"number", step:"0.1", placeholder:"98.6"}))}
+        ${field("Method", select("tempMethod", ["Oral","Tympanic","Axillary","Temporal","Rectal"]))}
         ${field("Resp", input("resp", "", {type:"number", placeholder:"16"}))}
-        ${field("SpO2 %", input("o2", "", {type:"number", placeholder:"97"}))}
       </div>
       <div class="split">
-        ${field("BP systolic", input("sys", "", {type:"number", placeholder:"120"}))}
-        ${field("BP diastolic", input("dia", "", {type:"number", placeholder:"80"}))}
-      </div>
-      <div class="split">
-        ${field("Position", select("bpPos", ["Sitting","Lying","Standing","Orthostatic"]))}
+        ${field("Oxygen SpO2 %", input("o2", "", {type:"number", placeholder:"97"}))}
         ${field("O2 source", input("o2src", "", {placeholder:"Room air / 2L NC"}))}
       </div>
-      <div class="split">
+      <div class="split3">
         ${field("Pain 0–10", input("pain", "", {type:"number", placeholder:"0"}))}
-        ${field("Glucose", input("glucose", "", {type:"number", placeholder:"optional"}))}
+        ${field("Blood glucose", input("glucose", "", {type:"number", placeholder:"110"}))}
+        ${field("Weight lb", input("weight", "", {type:"number", step:"0.1", placeholder:"optional"}))}
       </div>
-      ${field("Note", input("note", "", {placeholder:"Refused, irregular pulse, etc."}))}
+      ${field("Note", input("note", "", {placeholder:"Refused, irregular pulse, dizziness on standing"}))}
       <div class="actions"><button class="primary" type="submit">Save vitals</button></div>
       <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
     </form>`);
@@ -531,6 +539,7 @@ function describe(e) {
     if (d.o2) bits.push(`SpO2 ${d.o2}%`);
     if (d.pain) bits.push(`Pain ${d.pain}`);
     if (d.glucose) bits.push(`BG ${d.glucose}`);
+    if (d.weight) bits.push(`Wt ${d.weight} lb`);
     return bits.join(" · ") + (d.note ? ` — ${d.note}` : "");
   }
   if (e.type === "med") return `${d.name} ${d.dose || ""} ${d.route || ""} · ${d.status || ""}${d.note ? " — " + d.note : ""}`.trim();
@@ -576,7 +585,7 @@ function renderLog() {
       ${flags.length ? `<div class="flags">${flags.map(f => `<div class="flag">${esc(f)}</div>`).join("")}</div>` : ""}
     </article>
     <div class="grid6">
-      <button class="quick vitals" data-form="vital"><b>Vitals</b><span>TPR, BP, O2</span></button>
+      <button class="quick vitals" data-form="vital"><b>Vitals</b><span>BP and all</span></button>
       <button class="quick meds" data-form="med"><b>Meds</b><span>Given / held</span></button>
       <button class="quick food" data-form="food"><b>Intake</b><span>Meal + mL</span></button>
       <button class="quick urine" data-form="urine"><b>Urine</b><span>Void / Foley</span></button>
@@ -584,6 +593,16 @@ function renderLog() {
       <button class="quick move" data-form="move"><b>Movement</b><span>Turns / walk</span></button>
     </div>
     <button class="ghost" id="noteBtn" style="width:100%;margin-top:8px">+ Shift note</button>
+    <div class="section-title"><h2>Vitals</h2><span>${vit ? fmtTime(vit.at) : "Tap a box to chart"}</span></div>
+    <div class="vboard" id="vboard">
+      <button class="vtile wide ${vit && vit.data.sys && vitalFlags(vit.data).some(f => f.startsWith("BP")) ? "abn" : ""}" data-form="vital"><div class="k">Blood pressure</div><div class="v">${vit && vit.data.sys ? esc(vit.data.sys + "/" + (vit.data.dia || "?")) : "—"}</div><div class="d">${vit ? esc(vit.data.bpPos || "Position not set") : "Systolic / diastolic"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Pulse</div><div class="v">${vit && vit.data.pulse ? esc(vit.data.pulse) : "—"}</div><div class="d">beats / min</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Temp</div><div class="v">${vit && vit.data.temp ? esc(vit.data.temp + "°") : "—"}</div><div class="d">${vit ? esc(vit.data.tempMethod || "°F") : "°F"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Respirations</div><div class="v">${vit && vit.data.resp ? esc(vit.data.resp) : "—"}</div><div class="d">breaths / min</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Oxygen</div><div class="v">${vit && vit.data.o2 ? esc(vit.data.o2 + "%") : "—"}</div><div class="d">${vit ? esc(vit.data.o2src || "SpO2") : "SpO2"}</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Pain</div><div class="v">${vit && vit.data.pain !== undefined && vit.data.pain !== "" ? esc(vit.data.pain) : "—"}</div><div class="d">0–10</div></button>
+      <button class="vtile" data-form="vital"><div class="k">Blood glucose</div><div class="v">${vit && vit.data.glucose ? esc(vit.data.glucose) : "—"}</div><div class="d">${vit && vit.data.weight ? esc(vit.data.weight + " lb") : "mg/dL"}</div></button>
+    </div>
     <div class="section-title"><h2>Today</h2><span>${new Date().toLocaleDateString()}</span></div>
     <div class="stats">
       <div class="stat"><div class="k">Last vitals</div><div class="v">${vit ? fmtTime(vit.at) : "—"}</div><div class="d">${vit ? esc(describe(vit)) : "Not charted"}</div></div>
