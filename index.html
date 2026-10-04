@@ -338,7 +338,11 @@ function whenFrom(data) {
 function vitalForm() {
   openSheet(`
     <h3>Vitals</h3>
-    <p class="note-box">Blood pressure, pulse, temp, respirations, oxygen, pain, and glucose. Flags are reminders to tell the nurse, not a diagnosis.</p>
+    <p class="note-box">Take a picture of the blood pressure monitor, pulse ox, thermometer, or glucose meter. The numbers drop into the matching boxes. Check them before you save.</p>
+    <button type="button" class="primary" id="snapBtn" style="width:100%;margin-bottom:8px">Take picture of vitals</button>
+    <input id="snap" type="file" accept="image/*" capture="environment" class="hide" />
+    <img id="snapPreview" alt="" style="display:none;width:100%;border-radius:14px;margin-bottom:8px;max-height:180px;object-fit:cover" />
+    <p id="snapStatus" class="tiny"></p>
     <form id="vf">
       ${timeField()}
       <div class="split">
@@ -368,12 +372,75 @@ function vitalForm() {
       <button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button>
     </form>`);
   document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("snapBtn").onclick = () => document.getElementById("snap").click();
+  document.getElementById("snap").onchange = (e) => readVitalPhoto(e.target.files[0]);
   document.getElementById("vf").onsubmit = (e) => {
     e.preventDefault();
     const data = formData(e.target);
     data.at = whenFrom(data);
     addEntry("vital", data);
   };
+}
+
+function parseVitalsText(raw) {
+  const text = String(raw || "").replace(/[oO](?=\d)/g, "0").replace(/[Il](?=\d)/g, "1");
+  const found = {};
+  const bp = text.match(/(?:sys|systolic)?\D{0,8}(\d{2,3})\s*[\/\\|]\s*(\d{2,3})/i) || text.match(/\b(\d{2,3})\s+(\d{2,3})\b/);
+  if (bp) {
+    const sys = Number(bp[1]), dia = Number(bp[2]);
+    if (sys >= 70 && sys <= 250 && dia >= 40 && dia <= 150 && sys > dia) {
+      found.sys = String(sys);
+      found.dia = String(dia);
+    }
+  }
+  const spo2 = text.match(/(?:sp[o0]2|spo|oxygen|sat)\D{0,8}(\d{2,3})/i) || text.match(/(\d{2,3})\s*%/);
+  if (spo2 && Number(spo2[1]) >= 70 && Number(spo2[1]) <= 100) found.o2 = String(Number(spo2[1]));
+  const temp = text.match(/(?:temp|°\s*f|fahrenheit)\D{0,6}(\d{2,3}\.\d)/i) || text.match(/\b(9[4-9]|10[0-8])\.\d\b/);
+  if (temp) found.temp = temp[1];
+  const pulse = text.match(/(?:pulse|pr|hr|bpm)\D{0,6}(\d{2,3})/i);
+  if (pulse && Number(pulse[1]) >= 35 && Number(pulse[1]) <= 220) found.pulse = String(Number(pulse[1]));
+  const resp = text.match(/(?:resp|rr)\D{0,6}(\d{1,2})/i);
+  if (resp && Number(resp[1]) >= 6 && Number(resp[1]) <= 50) found.resp = String(Number(resp[1]));
+  const glu = text.match(/(?:glu|glucose|bg|mg\s*\/\s*dl)\D{0,8}(\d{2,3})/i);
+  if (glu && Number(glu[1]) >= 30 && Number(glu[1]) <= 600) found.glucose = String(Number(glu[1]));
+  const weight = text.match(/(?:wt|weight|lb)\D{0,6}(\d{2,3}(?:\.\d)?)/i);
+  if (weight && Number(weight[1]) >= 50 && Number(weight[1]) <= 500) found.weight = weight[1];
+  return found;
+}
+
+async function readVitalPhoto(file) {
+  if (!file) return;
+  const status = document.getElementById("snapStatus");
+  const preview = document.getElementById("snapPreview");
+  status.textContent = "Reading the picture…";
+  const url = URL.createObjectURL(file);
+  preview.src = url;
+  preview.style.display = "block";
+  try {
+    if (!window.Tesseract) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    const result = await window.Tesseract.recognize(file, "eng");
+    const text = result?.data?.text || "";
+    const found = parseVitalsText(text);
+    const labels = { sys: "blood pressure", dia: "blood pressure", pulse: "pulse", temp: "temp", resp: "respirations", o2: "oxygen", glucose: "glucose", weight: "weight" };
+    Object.entries(found).forEach(([key, value]) => {
+      const input = document.querySelector(`#vf [name="${key}"]`);
+      if (input) input.value = value;
+    });
+    const names = [...new Set(Object.keys(found).map((k) => labels[k]))];
+    status.textContent = names.length
+      ? `Filled ${names.join(", ")}. Check the boxes, then save.`
+      : `Could not read numbers. Try a closer, straight-on picture. Saw: ${text.replace(/\s+/g, " ").slice(0, 80)}`;
+  } catch {
+    status.textContent = "Could not read that picture. You need a signal the first time, then type the numbers if it fails.";
+  }
 }
 
 function medForm() {
