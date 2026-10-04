@@ -157,6 +157,7 @@
       <div class="eyebrow">Shift charting</div>
       <h1>Daily Log</h1>
       <div class="sub" id="clock"></div>
+    <div class="sub" id="planLine"></div>
     </div>
     <button class="icon-btn" id="addPatientBtn">+ Patient</button>
   </header>
@@ -180,6 +181,8 @@
 
 <script>
 const KEY = "cna-daily-log-v1";
+const LICENSE_HASHES = {"653450f5b984b5a829604d7813245d34502af2aaf22d30949c7e3de350650046":"year","3cf68b686a41c738810809db299274f25d4cd8361d6f0d909ff0ae106be9af83":"year","b95a621453ba1eea5a6031090864f124de9a10d20a40605a0f79ecba7f4eeb8b":"year","ad39702f310b6470ff8cec9435353c1422c11d333cf2728771a3c6f94be66654":"year","656808789ddbbe35399ac2e222cd58b73eae4eb6d27d934519c2d1e3cbbac0e5":"year","3a883dce9a64e7277112edad4a46ece1854b2dcf7f44332961d799baf354c6ee":"year","6ae5792de4c67f588dad2f84448fafcbd31ecf3d1bc7bfc0cf25a30211c8ec1d":"year","77c34dc39f51d4945b6974d15ea010dff978da6c7b728fecd5283b90c9b10852":"year","80f784c4c5b21ec00f554264f80fc3645eced908cb92b14db1aaaa621fd9fb10":"year","1ed24b3b780e5d23b938063372e4b569ce3e00cccce56148595fa5008eaf912c":"year","15306c32f7799b780fb049094d07d6b414ac42fe6b4527711e3bbac8322443f5":"year","021f37bb5194d50b922721a691ddbea5f5e5d830747c8cc679e118dc615c6477":"year","70c73e8b69bd2b2a042b948a99bfaf5ef1df9f4ff5e9513c9eaa04514d6d2e46":"year","3e788ebbd7f2f83a7edfa5aef78cfb26f47007ca3274c0eb2ed9b5d92664888c":"year","2a77438a7c02dbe74b5a4cb44db373bb5ec21a438b2fc60cd601548627491610":"year","4c4e77fd6bc25152b4b381a32659c1c76bd21b1f6f42de0ca86480a07bfb556a":"month","72b65e5882f4a5d6500ab1d4065971426f7f73b380960e7ff77c09db6bece04b":"month","8f7b01629d253103dfe9c830f15bf87eb196d910ac47aabdfbb35913f60ffe70":"month","7748c7a5dbedc0e3b67be905fa7f71e4ecb3e491edeb1f7d3a20e974b850cb11":"month","a2e36766293a2e282b9731ec35c6f29cd8e64662752d9423ec8ee55c2d82b0c8":"month","f6062ca11143b9f872a88f0a617564597ad7a772adc6ebd73ef098d4f06143e0":"month","e156a48baba561db92ab83a10dc177ac3a8b8aeac2ed3bc3971edf353459f67c":"month","2e4e2827060e3141c797894592f782849c3f9dd95230609718f0a29e24d6a30f":"month","36e00e66ca9095c12adf4859675be00c79ea35bde960c8af2c37a26f567e84ae":"month","d4f90dba2402a2da0282f1aa88e0dc6305591269306297541d84aa55fdf8e5da":"month","a95a26c7741988295e61d77f0b5d03d8903ac503b57b64e18bba2377d480e6fe":"owner"};
+const TRIAL_DAYS = 14;
 const nowISO = () => new Date().toISOString();
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -211,6 +214,43 @@ function load() {
   } catch { return defaultState(); }
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function ensureTrial() {
+  if (!state.trialStart) { state.trialStart = nowISO(); save(); }
+}
+function licenseActive() {
+  const lic = state.license;
+  if (!lic?.until) return false;
+  return new Date(lic.until) > new Date();
+}
+function trialDaysLeft() {
+  ensureTrial();
+  const used = Math.floor((Date.now() - new Date(state.trialStart).getTime()) / 86400000);
+  return TRIAL_DAYS - used;
+}
+function canUse() { return licenseActive() || trialDaysLeft() > 0; }
+async function unlockCode(code) {
+  const norm = String(code || "").trim().toUpperCase().replace(/\s+/g, "");
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(norm));
+  const hash = [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const plan = LICENSE_HASHES[hash];
+  if (!plan) return false;
+  const until = new Date();
+  if (plan === "month") until.setDate(until.getDate() + 31);
+  else if (plan === "year") until.setDate(until.getDate() + 366);
+  else until.setFullYear(until.getFullYear() + 20);
+  state.license = { plan, until: until.toISOString() };
+  save();
+  return true;
+}
+function paywallHtml() {
+  return `<article class="patient-card">
+    <div class="eyebrow">Trial ended</div>
+    <div class="pname">Daily Log is ready for your shift</div>
+    <p class="sub">$49 a year or $6.99 a month. Pay Erica, then enter the code she texts you. Charts stay on this phone.</p>
+    <a class="primary" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:50px;margin-top:12px">See price and pay</a>
+    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">I have a code</button>
+  </article>`;
+}
 function active() { return state.patients.find(p => p.id === state.activeId) || state.patients[0]; }
 
 function fmtTime(iso) {
@@ -697,6 +737,11 @@ function sumMl(type) {
 
 function renderLog() {
   const p = active();
+  if (!canUse()) {
+    document.getElementById("view-log").innerHTML = paywallHtml();
+    document.getElementById("enterCode").onclick = askCode;
+    return;
+  }
   if (!p) {
     document.getElementById("view-log").innerHTML = `<div class="empty">Add a patient to start a shift log.</div>`;
     return;
@@ -787,6 +832,7 @@ function switcher() {
 }
 
 function renderTimeline() {
+  if (!canUse()) { document.getElementById("view-timeline").innerHTML = paywallHtml(); document.getElementById("enterCode").onclick = askCode; return; }
   const p = active();
   const list = entriesFor(p.id);
   document.getElementById("view-timeline").innerHTML = `
@@ -825,6 +871,7 @@ function buildReport() {
 }
 
 function renderReport() {
+  if (!canUse()) { document.getElementById("view-report").innerHTML = paywallHtml(); document.getElementById("enterCode").onclick = askCode; return; }
   const text = buildReport();
   document.getElementById("view-report").innerHTML = `
     <div class="section-title"><h2>End of shift</h2><span>${esc(active().name)}</span></div>
@@ -852,7 +899,12 @@ function renderMore() {
     <input id="importFile" type="file" accept="application/json" class="hide" />
     <label style="display:flex;align-items:center;gap:8px;margin-top:14px"><input id="h24" type="checkbox" ${state.hour24 ? "checked" : ""} style="width:auto;min-height:0" /> 24-hour time</label>
     <button class="danger" id="wipe" style="width:100%;margin-top:16px">Erase all data on this device</button>
-    <p class="tiny">Saved only in this browser on this phone. Export a backup before clearing Safari data. This app does not send charts anywhere. It is not an EHR, MAR, or substitute for reporting a change in condition to the nurse.</p>`;
+    <div class="section-title"><h2>Plan</h2></div>
+    <p class="sub" id="planMore"></p>
+    <button class="ghost" id="enterCode" style="width:100%;margin-top:8px">Enter unlock code</button>
+    <a class="ghost" href="nurses.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">Nurse price page</a>
+    <a class="ghost" href="privacy.html" style="display:block;text-align:center;text-decoration:none;line-height:44px;margin-top:8px">Privacy and disclaimer</a>
+    <p class="tiny">Saved only in this browser on this phone. This is a shift aid, not the facility chart, MAR, or a medical device. Do not use it for real patients on a shared phone. Report changes to the nurse.</p>`;
   document.getElementById("add2").onclick = () => patientForm();
   document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => patientForm(state.patients.find(p => p.id === b.dataset.edit)));
   document.getElementById("h24").onchange = (e) => { state.hour24 = e.target.checked; save(); render(); };
@@ -879,10 +931,28 @@ function renderMore() {
     state = defaultState();
     save(); render();
   };
+  const planMore = document.getElementById("planMore");
+  if (planMore) planMore.textContent = licenseActive() ? `Paid through ${new Date(state.license.until).toLocaleDateString()}` : `${Math.max(trialDaysLeft(), 0)} trial days left`;
+  const codeBtn = document.getElementById("enterCode");
+  if (codeBtn) codeBtn.onclick = askCode;
 }
 
+function askCode() {
+  openSheet(`<h3>Unlock code</h3><form id="cf">${field("Code from Erica", input("code", "", {placeholder:"DL-XXXX-XXXX"}))}<div class="actions"><button class="primary" type="submit">Unlock</button></div><button type="button" class="ghost" id="cancel" style="width:100%;margin-top:8px">Cancel</button></form>`);
+  document.getElementById("cancel").onclick = closeSheet;
+  document.getElementById("cf").onsubmit = async (e) => {
+    e.preventDefault();
+    const ok = await unlockCode(formData(e.target).code);
+    if (!ok) { alert("That code is not valid."); return; }
+    closeSheet();
+    render();
+  };
+}
 function render() {
+  ensureTrial();
   document.getElementById("clock").textContent = new Date().toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", hour12: !state.hour24 });
+  const planLine = document.getElementById("planLine");
+  if (planLine) planLine.textContent = licenseActive() ? "Paid plan" : `${Math.max(trialDaysLeft(), 0)} days left in trial`;
   const view = document.querySelector("nav.tabs button.on")?.dataset.view || "log";
   ["log","timeline","report","more"].forEach(v => document.getElementById("view-" + v).classList.toggle("hide", v !== view));
   if (view === "log") renderLog();

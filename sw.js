@@ -1,5 +1,5 @@
-const CACHE = "daily-log-v4";
-const FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
+const CACHE = "daily-log-v5";
+const FILES = ["./", "index.html", "nurses.html", "privacy.html", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });
